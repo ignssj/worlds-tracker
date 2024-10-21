@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("worlds-tracker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f365b4686757399fd176909663fa55174ba6cd3e")]
 [assembly: System.Reflection.AssemblyProductAttribute("worlds-tracker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("worlds-tracker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
