@@ -1,66 +1,73 @@
-using Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using worlds_tracker.src.Data;
+using worlds_tracker.src.Dtos.Match;
+using worlds_tracker.src.Mappers;
+using worlds_tracker.src.Models;
 
-namespace Controllers
+namespace worlds_tracker.src.Controllers
 {
-
     [Route("api/matches")]
     [ApiController]
-
     public class MatchesController(WorldsContext context) : ControllerBase
     {
         private readonly WorldsContext _context = context;
 
-
         [HttpGet("{id}")]
-        public async Task<ActionResult<Match>> GetMatch(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MatchDto>> GetMatch([FromRoute] int id)
         {
             var match = await _context.Matches.FindAsync(id);
             if (match == null) return NotFound();
-            return match;
+
+            return match.ToMatchDto();
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Match>>> GetMatches()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MatchDto>>> GetMatches()
         {
-            return await _context.Matches.ToListAsync();
+            var list = await _context.Matches.ToListAsync();
+            return list.Select(m => m.ToMatchDto()).ToList();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Match>> CreateMatch(Match match)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<CreateMatchRequestDto>> CreateMatch([FromBody] CreateMatchRequestDto matchRequestDto)
         {
-            _context.Matches.Add(match);
+            var matchModel = matchRequestDto.ToMatchFromCreateDto();
+            _context.Matches.Add(matchModel);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetMatch), new { id = match.Id }, match);
+            return CreatedAtAction(nameof(GetMatch), new { id = matchModel.Id }, matchRequestDto);
         }
 
         [HttpPut("{id}")]
-
-        public async Task<IActionResult> UpdateMatch(int id, Match match)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateMatch([FromRoute] int id, [FromBody] UpdateMatchRequestDto matchRequestDto)
         {
-            if (id != match.Id) return BadRequest();
+            if (id != matchRequestDto.Id) return BadRequest();
 
-            _context.Entry(match).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                var matchExists = _context.Matches.Any(e => e.Id == id);
-                if (!matchExists) return NotFound();
-                else throw;
-            }
+            var matchExists = await _context.Matches.FindAsync(id);
+            if (matchExists == null) return NotFound();
+
+            var matchEntity = matchRequestDto.ToMatchFromUpdateDto();
+
+            _context.Entry(matchEntity).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMatch(int id)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteMatch([FromRoute] int id)
         {
             var match = await _context.Matches.FindAsync(id);
             if (match == null) return NotFound();
+
             _context.Matches.Remove(match);
             await _context.SaveChangesAsync();
             return NoContent();

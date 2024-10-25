@@ -13,6 +13,6 @@ namespace worlds_tracker.src.Dtos.Match
         public int? Team2Id { get; set; }
         public Models.Team? Team1 { get; set; }
         public Models.Team? Team2 { get; set; }
-        public string Result { get; set; } = string.Empty;
+        public string? Result { get; set; } = string.Empty;
     }
 }

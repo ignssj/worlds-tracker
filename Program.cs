@@ -1,10 +1,8 @@
-using Data;
 using Microsoft.EntityFrameworkCore;
+using worlds_tracker.src.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<WorldsContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));

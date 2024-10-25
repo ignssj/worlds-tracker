@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using worlds_tracker.src.Dtos.Match;
 using worlds_tracker.src.Models;
 
@@ -22,5 +18,29 @@ namespace worlds_tracker.src.Mappers
                 Result = matchModel.Result
             };
         }
+
+        public static Match ToMatchFromCreateDto(this CreateMatchRequestDto createMatchRequestDto)
+        {
+            return new Match
+            {
+                Date = createMatchRequestDto.Date,
+                Team1Id = createMatchRequestDto.Team1Id,
+                Team2Id = createMatchRequestDto.Team2Id,
+                Result = createMatchRequestDto.Result
+            };
+        }
+
+        public static Match ToMatchFromUpdateDto(this UpdateMatchRequestDto updateMatchRequestDto)
+        {
+            return new Match
+            {
+                Id = updateMatchRequestDto.Id,
+                Date = updateMatchRequestDto.Date,
+                Team1Id = updateMatchRequestDto.Team1Id,
+                Team2Id = updateMatchRequestDto.Team2Id,
+                Result = updateMatchRequestDto.Result
+            };
+        }
+
     }
 }

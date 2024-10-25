@@ -1,9 +1,9 @@
-using Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using worlds_tracker.src.Data;
+using worlds_tracker.src.Models;
 
-namespace Controllers
+namespace worlds_tracker.src.Controllers
 {
     [Route("api/teams")]
     [ApiController]
