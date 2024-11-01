@@ -1,24 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using worlds_tracker.src.Data;
 using worlds_tracker.src.Dtos.Match;
 using worlds_tracker.src.Mappers;
-using worlds_tracker.src.Models;
+using worlds_tracker.src.Repositories;
 
 namespace worlds_tracker.src.Controllers
 {
     [Route("api/matches")]
     [ApiController]
-    public class MatchesController(WorldsContext context) : ControllerBase
+    public class MatchesController(MatchRepository matchRepository) : ControllerBase
     {
-        private readonly WorldsContext _context = context;
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MatchDto>> GetMatch([FromRoute] int id)
         {
-            var match = await _context.Matches.FindAsync(id);
+            var match = await matchRepository.FindOneAsync(id);
             if (match == null) return NotFound();
 
             return match.ToMatchDto();
@@ -28,7 +25,7 @@ namespace worlds_tracker.src.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MatchDto>>> GetMatches()
         {
-            var list = await _context.Matches.ToListAsync();
+            var list = await matchRepository.FindAllAsync();
             return list.Select(m => m.ToMatchDto()).ToList();
         }
 
@@ -37,8 +34,7 @@ namespace worlds_tracker.src.Controllers
         public async Task<ActionResult<CreateMatchRequestDto>> CreateMatch([FromBody] CreateMatchRequestDto matchRequestDto)
         {
             var matchModel = matchRequestDto.ToMatchFromCreateDto();
-            _context.Matches.Add(matchModel);
-            await _context.SaveChangesAsync();
+            await matchRepository.CreateAsync(matchModel);
             return CreatedAtAction(nameof(GetMatch), new { id = matchModel.Id }, matchRequestDto);
         }
 
@@ -48,15 +44,7 @@ namespace worlds_tracker.src.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateMatch([FromRoute] int id, [FromBody] UpdateMatchRequestDto matchRequestDto)
         {
-            if (id != matchRequestDto.Id) return BadRequest();
-
-            var matchExists = await _context.Matches.FindAsync(id);
-            if (matchExists == null) return NotFound();
-
-            var matchEntity = matchRequestDto.ToMatchFromUpdateDto();
-
-            _context.Entry(matchEntity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await matchRepository.UpdateAsync(id, matchRequestDto);
             return NoContent();
         }
 
@@ -65,11 +53,7 @@ namespace worlds_tracker.src.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMatch([FromRoute] int id)
         {
-            var match = await _context.Matches.FindAsync(id);
-            if (match == null) return NotFound();
-
-            _context.Matches.Remove(match);
-            await _context.SaveChangesAsync();
+            await matchRepository.DeleteAsync(id);
             return NoContent();
         }
 

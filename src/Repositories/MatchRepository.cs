@@ -2,6 +2,7 @@ using worlds_tracker.src.Data;
 using Microsoft.EntityFrameworkCore;
 using worlds_tracker.src.Interfaces;
 using worlds_tracker.src.Models;
+using worlds_tracker.src.Dtos.Match;
 
 namespace worlds_tracker.src.Repositories
 {
@@ -36,14 +37,14 @@ namespace worlds_tracker.src.Repositories
             return await _context.Matches.FindAsync(id);
         }
 
-        public async Task<Match?> UpdateAsync(int id, Match entity)
+        public async Task<Match?> UpdateAsync(int id, UpdateMatchRequestDto body)
         {
-            var matchExists = await _context.Matches.FirstOrDefaultAsync(x => x.Id == id);
-            if (matchExists == null) return null;
+            var match = await _context.Matches.FirstOrDefaultAsync(x => x.Id == id);
+            if (match == null) return null;
 
-            _context.Entry(matchExists).State = EntityState.Modified;
+            _context.Entry(match).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return entity;
+            return match;
         }
     }
 }
